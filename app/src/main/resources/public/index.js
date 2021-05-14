@@ -3,10 +3,10 @@ const main = () => {
 }
 window.onload = main;
 
-const reloadCap = async()=>{
-    var res = await fetch("/captcha");
-    var img2 = await res.blob;
+const reloadCap = async(caller)=>{
+    // force reload with useless query https://stackoverflow.com/a/5161034/15588806
+    caller.src="/captcha?rand="+Math.random();
     
-    console.log(img2);
+    console.log('changed captcha');
     
 }

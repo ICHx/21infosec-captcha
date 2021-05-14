@@ -7,3 +7,6 @@ build
 .vscode
 build/
 bin/
+.history/
+
+.settings/

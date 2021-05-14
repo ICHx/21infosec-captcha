@@ -6,13 +6,39 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <style>
+        html{
+            background-color: darkcyan;
+        }
+        
+        div{
+            margin: 1em;
+        }
         footer {
-            font-size: .2cm;
+            font-size: .5cm;
+        }
+        
+        body{
+            width: 50%;
+            margin: 0 auto;
         }
 
         article {
+            padding: 2em;
+            background-color: white;
             min-height: 5em;
             height: 90%;
+            
+        }
+        
+        form{
+            padding: 1em;
+            border: 1px solid rebeccapurple;
+        }
+        
+        img{
+            width: 100%;
+            max-width:min-content;
+            height: auto;
         }
     </style>
     <script src="index.js"></script>
@@ -24,7 +50,7 @@
         <h1>Hello Eric</h1>
         <!-- <form action="https://www.w3schools.com/action_page.php" method="POST"> -->
         <form action="/login" method="POST">
-            <img src="/captcha" title="captcha" onclick="reloadCap()"/>
+            <img src="/captcha" title="captcha" id="captchaImg" onclick="reloadCap(this)"/>
 
             <div>
 

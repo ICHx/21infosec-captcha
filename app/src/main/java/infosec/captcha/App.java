@@ -6,69 +6,71 @@ package infosec.captcha;
 import java.util.HashMap;
 
 import io.javalin.Javalin;
-import io.javalin.http.Context;
 import io.javalin.http.staticfiles.Location;
 
 public class App {
     public static int PORT = 4567;
     private static String verySensitiveData = "Flag${You_are_a_J0ke}";
+    private static String veryNotSensitiveData = "Trololo";
 
     public static void main(String[] args) {
 
-        
-
         var app = Javalin.create(config -> {
             config.addStaticFiles("/public", Location.CLASSPATH);
-
             config.sessionHandler(Sessions::fileSessionHandler);
-            // config.accessManager((handler, ctx, roles) -> {
-            //     var currentUser = ctx.sessionAttribute("user");
-            //     if (currentUser == null) {
-            //         redirectToLogin(ctx);
-            //     } else {
-            //         handler.handle(ctx);
-            //     }
-            // });
-
         });
         app.start(PORT);
 
-        
         app.get("/session", ctx -> {
             // show keys store for this session
             ctx.result("session=" + ctx.sessionAttributeMap() + " id=" + ctx.req.getSession());
         });
-        
+
         app.get("/logout", ctx -> {
             ctx.redirect("/invalidate");
         });
-        
+
         app.get("/invalidate", ctx -> {
             // if you want to invalidate a session, jetty will clean everything up for you
             ctx.req.getSession().invalidate();
             ctx.redirect("/session");
         });
-        
-        
-        //! captcha stuff        
+
+        app.get("/secret", ctx -> {
+            var currentUser = ctx.sessionAttribute("user");
+            if (currentUser == null) {
+                ctx.redirect("/");
+                ctx.result(veryNotSensitiveData);
+            }
+            ctx.result(verySensitiveData);
+        });
+
+        // ! captcha stuff
+        HashMap<String, Integer> captchaPair = new HashMap<>();
+        // sessionID, answer
+
         app.post("/login", ctx -> {
             // take user name
             // take captcha
             String val_user = ctx.formParam("user");
             String val_ans = ctx.formParam("ans");
-            
+
             // validate
-            
-            
+            var id = ctx.req.getSession().getId();
+            var ans = captchaPair.get(id);
+            boolean success = false;
+            if (Integer.parseInt(val_ans) == ans) {
+                success = true;
+            }
+
             // if success
-            ctx.sessionAttribute("user", val_user);
-            ctx.result(verySensitiveData);
-            System.out.println("session user=" + val_user + " id=" + ctx.req.getSession().getId() +" answer="+val_ans);
+            if (success) {
+                ctx.sessionAttribute("user", val_user);
+            }
+            System.out.println("session user=" + val_user + " id=" + id + " answer=" + val_ans);
+            ctx.redirect("/secret");
         });
-        
-        HashMap<String, Integer> captchaPair = new HashMap<>(); 
-        // sessionID, answer
-        
+
         app.get("/captcha", ctx -> {
             // destroy last captcha
             // regen
@@ -77,30 +79,28 @@ public class App {
             var id = ctx.req.getSession().getId();
             var out = ctx.res.getOutputStream();
             var cp = new Captcha(out);
-            
-            captchaPair.put(id , cp.getAnswer());
+
+            captchaPair.put(id, cp.getAnswer());
         });
 
-        
-        
-        //! debug purpose
+        // ! debug purpose
         app.get("/write/:value", ctx -> {
-            // values written to the session will be available on all your instances if you use a session db
+            // values written to the session will be available on all your instances if you
+            // use a session db
             String val = ctx.pathParam("value");
             ctx.sessionAttribute("my-key", val);
             ctx.html("took value=" + val);
         });
 
         app.get("/read", ctx -> {
-            // values on the session will be available on all your instances if you use a session db
+            // values on the session will be available on all your instances if you use a
+            // session db
             String myValue = ctx.sessionAttribute("my-key");
             ctx.html(myValue);
         });
-        
-
 
     }
 
-    //https://javalin.io/tutorials/jetty-session-handling
+    // https://javalin.io/tutorials/jetty-session-handling
 
 }
