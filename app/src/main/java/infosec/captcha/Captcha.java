@@ -6,10 +6,13 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.UUID;
 
 import javax.imageio.ImageIO;
 
 public class Captcha {
+
+    private static final int NUM_OF_MESS = 10;
 
     private int answer;
 
@@ -57,9 +60,9 @@ public class Captcha {
         var bi = new BufferedImage(length, height, BufferedImage.TYPE_INT_RGB);
         var g = (Graphics2D) bi.getGraphics();
         // g.setColor(Color.gray);
-        g.setColor(new Color(random(128)+128,random(128)+128,random(128)+128));
+        g.setColor(new Color(random(128) + 128, random(128) + 128, random(128) + 128));
         g.fillRect(0, 0, length, height);
-        g.setFont(new Font("Arial", Font.BOLD, random(30)+15));
+        g.setFont(new Font("Arial", Font.BOLD, random(30) + 15));
 
         char opr = 0;
 
@@ -81,13 +84,20 @@ public class Captcha {
         String str = String.valueOf(a) + opr + String.valueOf(b);
         System.out.println(str);
 
-        // for (int i = 0; i < str.length(); i++) {
-        //     var ch = str.charAt(i);
-        //     g.draw
-        // }
-        g.setColor(new Color(random(128),random(128),random(128)));
-        g.drawString(str, random(length >>1) + (length >> 2), random(height>>1) + (height >> 2)); // todo
+        g.setColor(new Color(random(128), random(128), random(128)));
+        g.drawString(str, random(length >> 1) + (length >> 2), random(height >> 1) + (height >> 2));
 
+        //gibberish ref: https://stackoverflow.com/questions/41107/how-to-generate-a-random-alpha-numeric-string
+        for (int i = 0; i < NUM_OF_MESS; i++) {
+            var gibberish = UUID.randomUUID().toString().replaceAll("-", "");
+            
+            g.setColor(new Color(random(128), random(128), random(128), 110 + random(128)));
+            g.setFont(new Font("Arial", Font.BOLD, random(30) + 15));
+            
+            g.drawString(gibberish, random(length+10)-10, random(height+10)-10);
+        }
+
+        // ? done processing, write image
         try {
             ImageIO.write(bi, "png", out);
             out.flush();
@@ -95,6 +105,9 @@ public class Captcha {
             e.printStackTrace();
             return false;
         }
+        
+        g.dispose();
+        
 
         return true;
     }

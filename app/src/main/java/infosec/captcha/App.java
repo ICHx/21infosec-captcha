@@ -11,7 +11,7 @@ import io.javalin.http.staticfiles.Location;
 public class App {
     public static int PORT = 4567;
     private static String verySensitiveData = "Flag${You_are_a_J0ke}";
-    private static String veryNotSensitiveData = "Trololo";
+    private static String veryNotSensitiveData = "HL3 does not exist.  You fool.";
 
     public static void main(String[] args) {
 
@@ -23,31 +23,45 @@ public class App {
 
         app.get("/session", ctx -> {
             // show keys store for this session
-            ctx.result("session=" + ctx.sessionAttributeMap() + " id=" + ctx.req.getSession());
+            ctx.result("session id=" + ctx.req.getSession().getId());
         });
 
-        app.get("/logout", ctx -> {
-            ctx.redirect("/invalidate");
-        });
 
         app.get("/invalidate", ctx -> {
             // if you want to invalidate a session, jetty will clean everything up for you
             ctx.req.getSession().invalidate();
-            ctx.redirect("/session");
+            ctx.redirect("/");
         });
 
         app.get("/secret", ctx -> {
             var currentUser = ctx.sessionAttribute("user");
             if (currentUser == null) {
-                ctx.redirect("/");
                 ctx.result(veryNotSensitiveData);
+                System.out.println("I: secret forbidden");
+                
+            } else {
+                ctx.result(verySensitiveData);
+                System.out.println("I: secret revealed to " + currentUser);
             }
-            ctx.result(verySensitiveData);
+
+        });
+
+        app.get("/currentuser", ctx -> {
+            String currentUser = ctx.sessionAttribute("user");
+            if(currentUser==null){currentUser="";}
+            ctx.result(currentUser);
         });
 
         // ! captcha stuff
         HashMap<String, Integer> captchaPair = new HashMap<>();
         // sessionID, answer
+        
+        
+        app.get("/logout", ctx -> {
+            var id = ctx.req.getSession().getId();
+            captchaPair.remove(id);
+            ctx.redirect("/invalidate");
+        });
 
         app.post("/login", ctx -> {
             // take user name
@@ -57,18 +71,25 @@ public class App {
 
             // validate
             var id = ctx.req.getSession().getId();
-            var ans = captchaPair.get(id);
-            boolean success = false;
-            if (Integer.parseInt(val_ans) == ans) {
-                success = true;
+            try{
+                
+                var ans = captchaPair.get(id);
+                boolean success = false;
+                if (Integer.parseInt(val_ans) == ans) {
+                    success = true;
+                }
+                
+                // if success
+                if (success) {
+                    ctx.sessionAttribute("user", val_user);
+                }
+            }catch(NullPointerException | NumberFormatException e2){
+                // do nothing
             }
-
-            // if success
-            if (success) {
-                ctx.sessionAttribute("user", val_user);
+            finally{   
+                System.out.println("session user=" + val_user + " id=" + id + " answer=" + val_ans);
+                ctx.redirect("/");
             }
-            System.out.println("session user=" + val_user + " id=" + id + " answer=" + val_ans);
-            ctx.redirect("/secret");
         });
 
         app.get("/captcha", ctx -> {

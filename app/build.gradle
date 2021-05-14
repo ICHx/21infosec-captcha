@@ -21,10 +21,8 @@ dependencies {
     testImplementation 'junit:junit:4.13'
 
     // This dependency is used by the application.
-    implementation 'com.google.guava:guava:29.0-jre'
     implementation 'io.javalin:javalin:3.13.7'
     
-    implementation "org.slf4j:slf4j-api:1.8.0-beta4"
     implementation "org.slf4j:slf4j-simple:1.8.0-beta4"
     
 }

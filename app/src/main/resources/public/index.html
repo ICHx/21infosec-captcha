@@ -4,20 +4,21 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Half life 3 Portal</title>
     <style>
-        html{
+        html {
             background-color: darkcyan;
         }
-        
-        div{
+
+        div {
             margin: 1em;
         }
+
         footer {
             font-size: .5cm;
         }
-        
-        body{
+
+        body {
             width: 50%;
             margin: 0 auto;
         }
@@ -25,19 +26,19 @@
         article {
             padding: 2em;
             background-color: white;
-            min-height: 5em;
-            height: 90%;
-            
+            height: fit-content;
+            min-height: 10em;
+
         }
-        
-        form{
+
+        form {
             padding: 1em;
             border: 1px solid rebeccapurple;
         }
-        
-        img{
+
+        img {
             width: 100%;
-            max-width:min-content;
+            max-width: min-content;
             height: auto;
         }
     </style>
@@ -46,20 +47,30 @@
 
 <body>
     <article>
+        <h1>Hello <span id="userHUD">Stranger</span>!!!</h1>
+        <nav>
+            <ul>
+                <li>
+                    <a href="#" onclick="getSecret()">Secret</a>
+                </li>
+                <li id="navLogout">
+                    <a href="/logout">Logout</a>
+                </li>
+            </ul>
+        </nav>
 
-        <h1>Hello Eric</h1>
         <!-- <form action="https://www.w3schools.com/action_page.php" method="POST"> -->
-        <form action="/login" method="POST">
-            <img src="/captcha" title="captcha" id="captchaImg" onclick="reloadCap(this)"/>
+        <form id="loginForm" action="/login" method="POST">
+            <h3>Do simple calculation.</h3>
+            <div id="captchaDiv"></div>
+            <caption>Click to refresh</caption>
 
             <div>
-
                 <label for="input1">User: </label>
                 <input id="input1" name="user" placeholder="..." />
             </div>
 
             <div>
-
                 <label for="input2">Validate yourself: </label>
                 <input id="input2" name="ans" placeholder="..." />
             </div>
