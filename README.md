@@ -13,3 +13,7 @@
 - git clone
 - ./gradlew build
 - ./gradlew run
+
+### Actions
+- /captcha - return the captcha image for a session, reset every reload
+- /secret - accessing the shielded info
