@@ -17,7 +17,7 @@ public class App {
 
         var app = Javalin.create(config -> {
             config.addStaticFiles("/public", Location.CLASSPATH);
-            config.sessionHandler(Sessions::fileSessionHandler);
+            // config.sessionHandler(Sessions::fileSessionHandler);
         });
         app.start(PORT);
 
@@ -25,7 +25,6 @@ public class App {
             // show keys store for this session
             ctx.result("session id=" + ctx.req.getSession().getId());
         });
-
 
         app.get("/invalidate", ctx -> {
             // if you want to invalidate a session, jetty will clean everything up for you
@@ -38,7 +37,7 @@ public class App {
             if (currentUser == null) {
                 ctx.result(veryNotSensitiveData);
                 System.out.println("I: secret forbidden");
-                
+
             } else {
                 ctx.result(verySensitiveData);
                 System.out.println("I: secret revealed to " + currentUser);
@@ -48,15 +47,16 @@ public class App {
 
         app.get("/currentuser", ctx -> {
             String currentUser = ctx.sessionAttribute("user");
-            if(currentUser==null){currentUser="";}
+            if (currentUser == null) {
+                currentUser = "";
+            }
             ctx.result(currentUser);
         });
 
         // ! captcha stuff
         HashMap<String, Integer> captchaPair = new HashMap<>();
         // sessionID, answer
-        
-        
+
         app.get("/logout", ctx -> {
             var id = ctx.req.getSession().getId();
             captchaPair.remove(id);
@@ -70,23 +70,23 @@ public class App {
             String val_ans = ctx.formParam("ans");
 
             // validate
+            if (val_user.isBlank()){val_user="<empty>";}
             var id = ctx.req.getSession().getId();
-            try{
+            try {
                 
                 var ans = captchaPair.get(id);
                 boolean success = false;
                 if (Integer.parseInt(val_ans) == ans) {
                     success = true;
                 }
-                
+
                 // if success
                 if (success) {
                     ctx.sessionAttribute("user", val_user);
                 }
-            }catch(NullPointerException | NumberFormatException e2){
+            } catch (NullPointerException | NumberFormatException e2) {
                 // do nothing
-            }
-            finally{   
+            } finally {
                 System.out.println("session user=" + val_user + " id=" + id + " answer=" + val_ans);
                 ctx.redirect("/");
             }
